@@ -47,18 +47,21 @@ The notebook (`train_plate_detector.ipynb`) does the following, in order:
 
 To retrain from scratch, upload the four dataset archives into a fresh Colab session and run the notebook top to bottom. To continue training from a previously trained checkpoint instead of starting from the base `yolov8n.pt` weights, upload that checkpoint and change the model-loading line in the training cell accordingly.
 
+## Model
+
+The trained model, `plate_detector.tflite`, is included in this repository (see the root/`model` directory).
+
+Path expected by the Android app: `app/src/main/assets/plate_detector.tflite`.
+
+To regenerate the model instead of using the committed copy, run `train_plate_detector.ipynb` end to end per the steps above.
+
 ## Known limitations
 
 - **Single-class detector.** The model only localizes "a license plate is here" — it makes no distinction between jurisdictions, plate types, or vanity vs. standard plates. That distinction is left to the downstream text-validation layer.
 - **Dataset size.** The merged training set is on the order of several thousand images, which is workable but below the ~10,000+ images-per-class Ultralytics generally recommends for maximum robustness. Detection quality may degrade on unusual angles, extreme lighting, or heavy occlusion.
-- **Resolution-limited misses.** The detector (and any detector) cannot recover detail that was never captured — a plate that is genuinely too small, too distant, or too pixelated in the source frame may go undetected even though a human could read it. This is a capture-resolution limitation, not something more training data alone resolves; see the note below on planned camera-side mitigations.
-- **Not evaluated against a held-out real-world dashcam test set.** Training/validation splits come from the merged public datasets, not from actual Dashcam Utility footage. Real-world accuracy should be verified through in-app testing, not assumed from training metrics alone.
-
-## Planned improvements (not yet implemented)
-
-- **Active zoom/focus on candidate detections.** Rather than only ever analyzing the passive default-zoom camera feed, the app should drive CameraX's zoom-ratio and focus-metering controls toward a tentative low-confidence detection region before re-running detection/OCR, to better handle distant or small plates.
-- **Super-resolution preprocessing** on the cropped plate region before OCR, potentially fusing multiple consecutive frames from the existing temporal-consistency tracking window, to recover readable detail from a low-resolution capture.
+- **Resolution-limited misses.** The detector (and any detector) cannot recover detail that was never captured — a plate that is genuinely too small, too distant, or too pixelated in the source frame may go undetected even though a human could read it. This is a capture-resolution limitation, not something more training data alone resolves.
+- **Not evaluated against a held-out real-world dashcam test set.** Training/validation splits come from the merged public datasets. Real-world accuracy should be verified through in-app testing, not assumed from training metrics alone.
 
 ## License
 
-Model weights and training code in this repository: [add your chosen license here — e.g. MIT]. See "Training data attribution" above for the licensing terms governing the datasets used to produce the model.
+Model weights and training code in this repository are licensed under the MIT License — see `LICENSE`. See "Training data attribution" above for the licensing terms governing the datasets used to produce the model.
